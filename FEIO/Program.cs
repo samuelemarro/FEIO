@@ -18,17 +18,16 @@ namespace FEIO
 
             ExecutionParameters baseParameters = new ExecutionParameters();
             baseParameters.chromosome = new RealValuedChromosome(10, -4, 4, 0.5);
-            // baseParameters.chromosome = new PermutationChromosome(10);
+
             baseParameters.selectionTechnique = new TournamentSelection(0.1, true, true);
-            //baseParameters.crossoverProbability = 0.75;
-            //baseParameters.mutationProbability = 0.75;
+
             baseParameters.populationSize = populationSize;
             baseParameters.generationCount = generationCount;
             baseParameters.fitnessFunction = new SphereFitnessFunction();
             baseParameters.mutationWeigth = 0.01;
             baseParameters.nonEvaluationWeigth = 0.001;
 
-            double evaluationRate = 0.2;//0.5 è buono
+            double evaluationRate = 0.2;//0.5 is also okay
 
             double sommaOttimizzato = 0;
             double sommaNormale = 0;
@@ -75,8 +74,7 @@ namespace FEIO
 
             stopwatch.Stop();
 
-            Trace.WriteLine("Tempo impiegato:" + stopwatch.Elapsed);
-            Trace.WriteLine("Tasso: " + evaluationRate);
+            Trace.WriteLine("Time spent:" + stopwatch.Elapsed);
         }
 
 
