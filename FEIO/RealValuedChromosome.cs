@@ -48,7 +48,7 @@ namespace FEIO
         }
         
 
-        public override Chromosome GetClone()
+        public override Chromosome ImplementationClone()
         {
             RealValuedChromosome chromosome = new RealValuedChromosome((double[])Values.Clone(), Min, Max, MutationSize);
             chromosome.Fitness = Fitness;

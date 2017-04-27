@@ -16,13 +16,15 @@ namespace FEIO
         public FitnessFunction FitnessFunctionTechnique { get; }
 
         public Generation CurrentGeneration { get; private set; }
-        public List<List<double>> FitnessValues { get; private set; }
 
         public int totalEvaluations;
         
         private static Random random = new Random();
 
-        public GeneticAlgorithm(double crossoverRate, double mutationRate, Generation firstGeneration, Selection selectionTechnique, FitnessFunction fitnessFunctionTechnique, double evaluationRate, int elitismSize, double mutationWeigth, double nonEvaluationWeigth)
+        public GeneticAlgorithm(Generation firstGeneration, ExecutionParameters parameters) : 
+            this(firstGeneration, parameters.crossoverRate, parameters.mutationProbability, parameters.selectionTechnique, parameters.fitnessFunction, parameters.evaluationRate, parameters.elitismSize, parameters.mutationWeigth, parameters.nonEvaluationWeigth) { }
+
+        public GeneticAlgorithm(Generation firstGeneration, double crossoverRate, double mutationRate, Selection selectionTechnique, FitnessFunction fitnessFunctionTechnique, double evaluationRate, int elitismSize, double mutationWeigth, double nonEvaluationWeigth)
         {
             if (firstGeneration.Count % 2 != 0)
             {
@@ -44,8 +46,6 @@ namespace FEIO
             FitnessFunctionTechnique = fitnessFunctionTechnique;
 
             EvaluateEveryone();
-
-            FitnessValues = new List<List<double>>();
         }
 
         public void RunEpoch()
@@ -82,25 +82,25 @@ namespace FEIO
 
                     if (random.NextDouble() < 0.5)
                     {
-                        children.Item1.DifferencePotential = parents.Item1.DifferencePotential;
-                        children.Item2.DifferencePotential = parents.Item2.DifferencePotential;
+                        children.Item1.Priority = parents.Item1.Priority;
+                        children.Item2.Priority = parents.Item2.Priority;
                     }
                     else
                     {
-                        children.Item1.DifferencePotential = parents.Item2.DifferencePotential;
-                        children.Item2.DifferencePotential = parents.Item1.DifferencePotential;
+                        children.Item1.Priority = parents.Item2.Priority;
+                        children.Item2.Priority = parents.Item1.Priority;
                     }
 
                     double variance = (Math.Pow(parents.Item1.Fitness - parentAverage, 2) + Math.Pow(parents.Item2.Fitness - parentAverage, 2)) / 2;
                     double stdDev = Math.Sqrt(variance);
                     double fitnessDifference = Math.Abs(parents.Item1.Fitness - parents.Item2.Fitness);
-                    children.Item1.DifferencePotential += variance;
-                    children.Item2.DifferencePotential += variance;
+                    children.Item1.Priority += variance;
+                    children.Item2.Priority += variance;
 
                 }
                 else
                 {
-                    children = new Tuple<Chromosome, Chromosome>(parents.Item1.Clone(), parents.Item2.Clone());
+                    children = new Tuple<Chromosome, Chromosome>((Chromosome)parents.Item1.Clone(), (Chromosome)parents.Item2.Clone());
                 }
 
                 //Mutation
@@ -108,13 +108,13 @@ namespace FEIO
                 {
                     children.Item1.Mutate();
                     children.Item1.FitnessOutdated = true;
-                    children.Item1.DifferencePotential += MutationWeigth;
+                    children.Item1.Priority += MutationWeigth;
                 }
                 if (random.NextDouble() < MutationRate)
                 {
                     children.Item2.Mutate();
                     children.Item2.FitnessOutdated = true;
-                    children.Item2.DifferencePotential += MutationWeigth;
+                    children.Item2.Priority += MutationWeigth;
                 }
 
 
@@ -133,7 +133,7 @@ namespace FEIO
                 return;
             
             int evaluations = (int)((double)chromosomes.Count * EvaluationRate);
-            List<Chromosome> orderedChromosomes = chromosomes.OrderByDescending(x => x.DifferencePotential).ToList();
+            List<Chromosome> orderedChromosomes = chromosomes.OrderByDescending(x => x.Priority).ToList();
             
             for(int i = 0; i < orderedChromosomes.Count; i++)
             {
@@ -142,13 +142,13 @@ namespace FEIO
                 if(i < evaluations) //Chosen for evaluation
                 {
                     c.Fitness = FitnessFunctionTechnique.Evaluate(c);
-                    c.DifferencePotential = 0;
+                    c.Priority = 0;
                     c.FitnessOutdated = false;
                     totalEvaluations++;
                 }
                 else
                 {
-                    c.DifferencePotential += NonEvaluationWeigth;
+                    c.Priority += NonEvaluationWeigth;
                 }
             }
 

@@ -3,12 +3,27 @@
     /// <summary>
     /// A structure used as parameter for <see cref="Execute(ExecutionParameters)"/>.
     /// </summary>
-    struct ExecutionParameters
+    public struct ExecutionParameters
     {
-        public Chromosome chromosome;
+        /// <summary>
+        /// The chromosome used as blueprint.
+        /// </summary>
+        public Chromosome blueprintChromosome;
+
+        /// <summary>
+        /// The fitness function used to compute the fitness of the chromosomes.
+        /// </summary>
         public FitnessFunction fitnessFunction;
+
+        /// <summary>
+        /// The technique used to select the chromosomes.
+        /// </summary>
         public Selection selectionTechnique;
-        public double crossoverProbability;
+
+        /// <summary>
+        /// The crossover rate.
+        /// </summary>
+        public double crossoverRate;
         public double mutationProbability;
         public int elitismSize;
         public double mutationWeigth;

@@ -1,17 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FEIO
 {
+    /// <summary>
+    /// Represents a collection of chromosomes.
+    /// </summary>
     public class Generation : List<Chromosome>
     {
-        public Generation(List<Chromosome> chromosomes)
+        /// <summary>
+        /// Initialises an instance of Generation.
+        /// </summary>
+        /// <param name="chromosomes">The chromosomes in the generation</param>
+        public Generation(List<Chromosome> chromosomes) : base()
         {
             base.AddRange(chromosomes);
         }
+
+        /// <summary>
+        /// Initialises an instance of Generation.
+        /// </summary>
+        /// <param name="size">The number of chromosomes in the generation</param>
+        /// <param name="originalChromosome">The chromosome used as blueprint for the generation.</param>
+        /// <remarks>Uses <see cref="Chromosome.CreateNew"/> to create the chromosomes.</remarks>
         public Generation(int size, Chromosome originalChromosome) : base()
         {
             for (int i = 0; i < size; i++)
@@ -21,6 +33,10 @@ namespace FEIO
                 base.Add(c);
             }
         }
+
+        /// <summary>
+        /// The average fitness of the generation.
+        /// </summary>
         public double AverageFitness
         {
             get
@@ -29,6 +45,9 @@ namespace FEIO
             }
         }
 
+        /// <summary>
+        /// The maximum fitness of the generation.
+        /// </summary>
         public double MaxFitness
         {
             get
@@ -37,6 +56,9 @@ namespace FEIO
             }
         }
 
+        /// <summary>
+        /// The minimum fitness of the generation.
+        /// </summary>
         public double MinFitness
         {
             get
@@ -45,6 +67,9 @@ namespace FEIO
             }
         }
 
+        /// <summary>
+        /// The standard deviation of the fitness of the population.
+        /// </summary>
         public double FitnessStdDev
         {
             get

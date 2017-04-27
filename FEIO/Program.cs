@@ -16,7 +16,7 @@ namespace FEIO
             int generationCount = 100;
 
             ExecutionParameters baseParameters = new ExecutionParameters();
-            baseParameters.chromosome = new RealValuedChromosome(10, -4, 4, 0.5);
+            baseParameters.blueprintChromosome = new RealValuedChromosome(10, -4, 4, 0.5);
 
             baseParameters.selectionTechnique = new TournamentSelection(0.1, true, true);
 
@@ -40,11 +40,11 @@ namespace FEIO
 
             for (int i = 0; i < 1000; i++)
             {
-                baseParameters.crossoverProbability = 0.75;
+                baseParameters.crossoverRate = 0.75;
                 baseParameters.mutationProbability = 0.125;
                 int elitismSize = 2;
                 baseParameters.elitismSize = elitismSize;
-                
+
                 ExecutionParameters parametriNormali = baseParameters;
                 parametriNormali.fitnessFunction = baseParameters.fitnessFunction;
                 parametriNormali.evaluationRate = 1;
@@ -67,7 +67,7 @@ namespace FEIO
 
                 successiNormale += normale.Item1 ? 1 : 0;
                 successiOttimizzato += ottimizzato.Item1 ? 1 : 0;
-                
+
                 Trace.WriteLine((sommaOttimizzato / sommaNormale) + ";" + ((double)successiOttimizzato / (double)successiNormale));
 
             }
@@ -76,7 +76,7 @@ namespace FEIO
 
             Trace.WriteLine("Elapsed time:" + stopwatch.Elapsed);
         }
-        
+
         /// <summary>
         /// Executes an instance of a genetic algorithm with the specified parameters.
         /// </summary>
@@ -84,9 +84,9 @@ namespace FEIO
         /// <returns></returns>
         static Tuple<bool, int> Execute(ExecutionParameters parameters)
         {
-            Generation firstGeneration = new Generation(parameters.populationSize, parameters.chromosome);
+            Generation firstGeneration = new Generation(parameters.populationSize, parameters.blueprintChromosome);
 
-            GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(parameters.crossoverProbability, parameters.mutationProbability, firstGeneration, parameters.selectionTechnique, parameters.fitnessFunction, parameters.evaluationRate, parameters.elitismSize, parameters.mutationWeigth, parameters.nonEvaluationWeigth);
+            GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(firstGeneration, parameters);
 
             int nGenerations = 0;
             bool success = true;

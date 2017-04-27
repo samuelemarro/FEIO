@@ -4,21 +4,48 @@ using System.Linq;
 
 namespace FEIO
 {
+    /// <summary>
+    /// A selection technique where a random group of chromosomes competes in a tournament.
+    /// </summary>
     public class TournamentSelection : Selection
     {
+        /// <summary>
+        /// The rate of individuals chosen for a tournament.
+        /// </summary>
+        /// <example>If there are 50 chromosomes and the tournament rate is 0.1, only 5 chromosomes compete.</example>
         public double TournamentRate { get; }
-        public bool Minimize { get; }
+        /// <summary>
+        /// Whether the instance should select individuals with a lower(true) or a higher(false) fitness.
+        /// </summary>
+        public bool Minimise { get; }
+        /// <summary>
+        /// Whether the chromosome that is chosen to be the first parent can also be the second parent.
+        /// </summary>
         public bool WinnerCanCompeteAgain { get; }
 
-        static Random r = new Random();
+        /// <summary>
+        /// Random number generator.
+        /// </summary>
+        private static Random r = new Random();
 
-        public TournamentSelection(double tournamentRate, bool minimize, bool winnerCanCompeteAgain)
+        /// <summary>
+        /// Initialises an instance of TournamentSelection.
+        /// </summary>
+        /// <param name="tournamentRate">The rate of individuals chosen for a tournament.</param>
+        /// <param name="minimise">Whether the instance should select individuals with a lower(true) or a higher(false) fitness.</param>
+        /// <param name="winnerCanCompeteAgain">Whether the chromosome that is chosen to be the first parent can also be the second parent.</param>
+        public TournamentSelection(double tournamentRate, bool minimise, bool winnerCanCompeteAgain)
         {
             TournamentRate = tournamentRate;
-            Minimize = minimize;
+            Minimise = minimise;
             WinnerCanCompeteAgain = winnerCanCompeteAgain;
         }
 
+        /// <summary>
+        /// Selects the two 
+        /// </summary>
+        /// <param name="population"></param>
+        /// <returns></returns>
         public override Tuple<Chromosome, Chromosome> Select(Generation population)
         {
             int tournamentSize = (int)((double)population.Count * TournamentRate);
@@ -70,7 +97,7 @@ namespace FEIO
 
             for(int i = 1; i < chromosomes.Length; i++)
             {
-                if((chromosomes[i].Fitness < best && Minimize) || (chromosomes[i].Fitness > best && !Minimize))
+                if((chromosomes[i].Fitness < best && Minimise) || (chromosomes[i].Fitness > best && !Minimise))
                 {
                     best = chromosomes[i].Fitness;
                     bestChromosome = chromosomes[i];

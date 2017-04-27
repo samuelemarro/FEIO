@@ -84,7 +84,7 @@ namespace FEIO
         /// <remarks><para>The method clones the chromosome returning the exact copy of it.</para>
         /// </remarks>
         ///
-		public override Chromosome GetClone()
+		public override Chromosome ImplementationClone()
         {
             PermutationChromosome permutationChromosome = new PermutationChromosome();
             permutationChromosome.Length = Length;
