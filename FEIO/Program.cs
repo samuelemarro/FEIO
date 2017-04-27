@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
 
 namespace FEIO
 {
+    /// <summary>
+    /// The program entry point class.
+    /// </summary>
     class Program
     {
         static Random r = new Random();
@@ -26,6 +25,8 @@ namespace FEIO
             baseParameters.fitnessFunction = new SphereFitnessFunction();
             baseParameters.mutationWeigth = 0.01;
             baseParameters.nonEvaluationWeigth = 0.001;
+            baseParameters.target = 1e-3;
+            baseParameters.maxEvaluations = 50000;
 
             double evaluationRate = 0.2;//0.5 is also okay
 
@@ -39,7 +40,6 @@ namespace FEIO
 
             for (int i = 0; i < 1000; i++)
             {
-
                 baseParameters.crossoverProbability = 0.75;
                 baseParameters.mutationProbability = 0.125;
                 int elitismSize = 2;
@@ -74,25 +74,14 @@ namespace FEIO
 
             stopwatch.Stop();
 
-            Trace.WriteLine("Time spent:" + stopwatch.Elapsed);
+            Trace.WriteLine("Elapsed time:" + stopwatch.Elapsed);
         }
-
-
-        struct ExecutionParameters
-        {
-            public Chromosome chromosome;
-            public FitnessFunction fitnessFunction;
-            public Selection selectionTechnique;
-            public double crossoverProbability;
-            public double mutationProbability;
-            public int elitismSize;
-            public double mutationWeigth;
-            public double nonEvaluationWeigth;
-            public int populationSize;
-            public int generationCount;
-            public double evaluationRate;
-        }
-
+        
+        /// <summary>
+        /// Executes an instance of a genetic algorithm with the specified parameters.
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
         static Tuple<bool, int> Execute(ExecutionParameters parameters)
         {
             Generation firstGeneration = new Generation(parameters.populationSize, parameters.chromosome);
@@ -102,11 +91,11 @@ namespace FEIO
             int nGenerations = 0;
             bool success = true;
 
-            while (geneticAlgorithm.CurrentGeneration.MinFitness > 1e-4)
+            while (geneticAlgorithm.CurrentGeneration.MinFitness > parameters.target)
             {
                 geneticAlgorithm.RunEpoch();
                 nGenerations++;
-                if (geneticAlgorithm.totalEvaluations > 100000)
+                if (geneticAlgorithm.totalEvaluations > parameters.maxEvaluations)
                 {
                     success = false;
                     break;
