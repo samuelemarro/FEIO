@@ -18,17 +18,16 @@ namespace FEIO
             parameters.blueprintChromosome = new RealValuedChromosome(10, -4, 4, 0.5);
             parameters.fitnessFunction = new GriewankFitnessFunction();
 
-            parameters.selectionTechnique = new TournamentSelection(0.1, true, true);
-
             parameters.elitismRate = 0.01;
             parameters.populationSize = 500;
             parameters.mutationWeigth = 0.01;
             parameters.nonEvaluationWeigth = 0.001;
-            parameters.target = 1e-3;
-            parameters.maxEvaluations = 10000;
-            parameters.crossoverRate = 0.8;
-            parameters.mutationRate = 0.02;
+            parameters.maxEvaluations = 50000;
+            parameters.crossoverRate = 0.9;
+            parameters.mutationRate = 0.05;
             parameters.selectionTechnique = new TournamentSelection(0.1, true, true);
+            parameters.target = 0;
+            parameters.targetError = 1e-3;
 
             int testSize = 100;
 
@@ -60,7 +59,7 @@ namespace FEIO
                 ExecutionParameters notOptimisedParameters = parameters;
 
                 Tuple<bool, int> results_optimised = ExecuteInstance(evaluationRate, parameters);
-                Tuple<bool, int> results_default = ExecuteInstance(evaluationRate, notOptimisedParameters);
+                Tuple<bool, int> results_default = ExecuteInstance(1, notOptimisedParameters);
 
                 if (results_optimised.Item1 && results_default.Item1)
                 {
@@ -68,13 +67,13 @@ namespace FEIO
                     totalEvaluations_default += results_default.Item2;
                 }
 
-                if (results_default.Item1)
-                {
-                    successfulExecutions_default++;
-                }
                 if (results_optimised.Item1)
                 {
                     successfulExecutions_optimised++;
+                }
+                if (results_default.Item1)
+                {
+                    successfulExecutions_default++;
                 }
             }
             double relativeEvaluations = (double)totalEvaluations_optimised / (double)totalEvaluations_default;
@@ -96,7 +95,7 @@ namespace FEIO
             int nGenerations = 0;
             bool success = true;
 
-            while (geneticAlgorithm.CurrentGeneration.MinFitness > parameters.target)
+            while (Math.Abs(geneticAlgorithm.CurrentGeneration.MinFitness - parameters.target) > parameters.targetError)
             {
                 geneticAlgorithm.RunEpoch();
                 nGenerations++;

@@ -6,7 +6,7 @@ namespace FEIO
     /// <summary>
     /// A selection technique where the probability of being chosen is proportional to the fitness.
     /// </summary>
-    /// <remarks>RouletteWheelSelection only allows minimisation and does not support negative numbers.</remarks>
+    /// <remarks>RouletteWheelSelection only allows maximisation and does not support negative numbers.</remarks>
     public class RouletteWheelSelection : Selection
     {
         /// <summary>
