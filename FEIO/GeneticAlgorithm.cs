@@ -8,7 +8,7 @@ namespace FEIO
     {
         public double CrossoverRate { get; }
         public double MutationRate { get; }
-        public int ElitismSize { get; }
+        public double ElitismRate { get; }
         public double MutationWeigth { get; }
         public double NonEvaluationWeigth { get; }
         public double EvaluationRate { get; private set; }
@@ -21,25 +21,20 @@ namespace FEIO
         
         private static Random random = new Random();
 
-        public GeneticAlgorithm(Generation firstGeneration, ExecutionParameters parameters) : 
-            this(firstGeneration, parameters.crossoverRate, parameters.mutationProbability, parameters.selectionTechnique, parameters.fitnessFunction, parameters.evaluationRate, parameters.elitismSize, parameters.mutationWeigth, parameters.nonEvaluationWeigth) { }
+        public GeneticAlgorithm(double evaluationRate, Generation firstGeneration, ExecutionParameters parameters) : 
+            this(evaluationRate, firstGeneration, parameters.crossoverRate, parameters.mutationRate, parameters.selectionTechnique, parameters.fitnessFunction, parameters.elitismRate, parameters.mutationWeigth, parameters.nonEvaluationWeigth) { }
 
-        public GeneticAlgorithm(Generation firstGeneration, double crossoverRate, double mutationRate, Selection selectionTechnique, FitnessFunction fitnessFunctionTechnique, double evaluationRate, int elitismSize, double mutationWeigth, double nonEvaluationWeigth)
+        public GeneticAlgorithm(double evaluationRate, Generation firstGeneration, double crossoverRate, double mutationRate, Selection selectionTechnique, FitnessFunction fitnessFunctionTechnique, double elitismRate, double mutationWeigth, double nonEvaluationWeigth)
         {
             if (firstGeneration.Count % 2 != 0)
             {
                 throw new ArgumentException("The first generation must have an even size", "firstGeneration");
             }
-            if (elitismSize % 2 != 0)
-            {
-                throw new ArgumentException("The elitism size must be even", "elitismSize");
-            }
-
+            EvaluationRate = evaluationRate;
             CrossoverRate = crossoverRate;
             MutationRate = mutationRate;
-            ElitismSize = elitismSize;
+            ElitismRate = elitismRate;
             MutationWeigth = mutationWeigth;
-            EvaluationRate = evaluationRate;
             NonEvaluationWeigth = nonEvaluationWeigth;
             CurrentGeneration = firstGeneration;
             SelectionTechnique = selectionTechnique;
@@ -53,7 +48,7 @@ namespace FEIO
 
             List<Chromosome> newGeneration = new List<Chromosome>();
 
-            newGeneration.AddRange(CurrentGeneration.OrderBy(x => x.Fitness).Take(ElitismSize));
+            newGeneration.AddRange(CurrentGeneration.OrderBy(x => x.Fitness).Take((int)(CurrentGeneration.Count * ElitismRate)));
 
             while (newGeneration.Count < CurrentGeneration.Count)
             {
@@ -116,10 +111,14 @@ namespace FEIO
                     children.Item2.FitnessOutdated = true;
                     children.Item2.Priority += MutationWeigth;
                 }
-
-
+                
                 newGeneration.Add(children.Item1);
-                newGeneration.Add(children.Item2);
+
+                //Sometimes only one child can be added
+                if(newGeneration.Count == CurrentGeneration.Count)
+                {
+                    newGeneration.Add(children.Item2);
+                }
             }
             CurrentGeneration = new Generation(newGeneration);
             EvaluatePopulation();

@@ -24,13 +24,11 @@
         /// The crossover rate.
         /// </summary>
         public double crossoverRate;
-        public double mutationProbability;
-        public int elitismSize;
+        public double mutationRate;
+        public double elitismRate;
         public double mutationWeigth;
         public double nonEvaluationWeigth;
         public int populationSize;
-        public int generationCount;
-        public double evaluationRate;
 
         public double target;
         public double maxEvaluations;

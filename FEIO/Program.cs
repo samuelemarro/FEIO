@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 
 namespace FEIO
 {
@@ -12,69 +13,73 @@ namespace FEIO
         const int citiesCount = 10;
         static void Main(string[] args)
         {
-            int populationSize = 500;
-            int generationCount = 100;
-
-            ExecutionParameters baseParameters = new ExecutionParameters();
-            baseParameters.blueprintChromosome = new RealValuedChromosome(10, -4, 4, 0.5);
-
-            baseParameters.selectionTechnique = new TournamentSelection(0.1, true, true);
-
-            baseParameters.populationSize = populationSize;
-            baseParameters.generationCount = generationCount;
-            baseParameters.fitnessFunction = new SphereFitnessFunction();
-            baseParameters.mutationWeigth = 0.01;
-            baseParameters.nonEvaluationWeigth = 0.001;
-            baseParameters.target = 1e-3;
-            baseParameters.maxEvaluations = 50000;
-
-            double evaluationRate = 0.2;//0.5 is also okay
-
-            double sommaOttimizzato = 0;
-            double sommaNormale = 0;
-
-            int successiOttimizzato = 0;
-            int successiNormale = 0;
-
             var stopwatch = Stopwatch.StartNew();
+            ExecutionParameters parameters = new ExecutionParameters();
+            parameters.blueprintChromosome = new RealValuedChromosome(10, -4, 4, 0.5);
+            parameters.fitnessFunction = new GriewankFitnessFunction();
 
-            for (int i = 0; i < 1000; i++)
+            parameters.selectionTechnique = new TournamentSelection(0.1, true, true);
+
+            parameters.elitismRate = 0.01;
+            parameters.populationSize = 500;
+            parameters.mutationWeigth = 0.01;
+            parameters.nonEvaluationWeigth = 0.001;
+            parameters.target = 1e-3;
+            parameters.maxEvaluations = 10000;
+            parameters.crossoverRate = 0.8;
+            parameters.mutationRate = 0.02;
+            parameters.selectionTechnique = new TournamentSelection(0.1, true, true);
+
+            int testSize = 100;
+
+            for (double evaluationRate = 0.1; evaluationRate < 1; evaluationRate += 0.1)
             {
-                baseParameters.crossoverRate = 0.75;
-                baseParameters.mutationProbability = 0.125;
-                int elitismSize = 2;
-                baseParameters.elitismSize = elitismSize;
-
-                ExecutionParameters parametriNormali = baseParameters;
-                parametriNormali.fitnessFunction = baseParameters.fitnessFunction;
-                parametriNormali.evaluationRate = 1;
-
-                Tuple<bool, int> normale = Execute(parametriNormali);
-
-                ExecutionParameters parametriOttimizzati = baseParameters;
-                parametriOttimizzati.fitnessFunction = baseParameters.fitnessFunction;
-                parametriOttimizzati.evaluationRate = evaluationRate;
-
-                Tuple<bool, int> ottimizzato = Execute(parametriOttimizzati);
-
-                Trace.WriteLine(ottimizzato.Item2 + ";" + normale.Item2);
-
-                if (ottimizzato.Item1 && normale.Item1)
-                {
-                    sommaOttimizzato += ottimizzato.Item2;
-                    sommaNormale += normale.Item2;
-                }
-
-                successiNormale += normale.Item1 ? 1 : 0;
-                successiOttimizzato += ottimizzato.Item1 ? 1 : 0;
-
-                Trace.WriteLine((sommaOttimizzato / sommaNormale) + ";" + ((double)successiOttimizzato / (double)successiNormale));
-
+                Tuple<double, double> results = ComparePerformance(testSize, evaluationRate, parameters);
+                Trace.WriteLine("Relative evaluations: " + results.Item1 + "; Relative success rate: " + results.Item2);
             }
 
             stopwatch.Stop();
-
             Trace.WriteLine("Elapsed time:" + stopwatch.Elapsed);
+        }
+        /// <summary>
+        /// Compares the performance between
+        /// </summary>
+        /// <param name="testSize">How many tests to execute.</param>
+        /// <param name="parameters">The parameters used to run the test.</param>
+        /// <returns>A tuple consisting of average relative number of evaluations and average relative success rate.</returns>
+        static Tuple<double, double> ComparePerformance(int testSize, double evaluationRate, ExecutionParameters parameters)
+        {
+            int totalEvaluations_optimised = 0;
+            int totalEvaluations_default = 0;
+
+            int successfulExecutions_optimised = 0;
+            int successfulExecutions_default = 0;
+
+            for (int i = 0; i < testSize; i++)
+            {
+                ExecutionParameters notOptimisedParameters = parameters;
+
+                Tuple<bool, int> results_optimised = ExecuteInstance(evaluationRate, parameters);
+                Tuple<bool, int> results_default = ExecuteInstance(evaluationRate, notOptimisedParameters);
+
+                if (results_optimised.Item1 && results_default.Item1)
+                {
+                    totalEvaluations_optimised += results_optimised.Item2;
+                    totalEvaluations_default += results_default.Item2;
+                }
+
+                if (results_default.Item1)
+                {
+                    successfulExecutions_default++;
+                }
+                if (results_optimised.Item1)
+                {
+                    successfulExecutions_optimised++;
+                }
+            }
+            double relativeEvaluations = (double)totalEvaluations_optimised / (double)totalEvaluations_default;
+            double relativeSuccessRate = (double)successfulExecutions_optimised / (double)successfulExecutions_default;
+            return new Tuple<double, double>(relativeEvaluations, relativeSuccessRate);
         }
 
         /// <summary>
@@ -82,11 +87,11 @@ namespace FEIO
         /// </summary>
         /// <param name="parameters"></param>
         /// <returns></returns>
-        static Tuple<bool, int> Execute(ExecutionParameters parameters)
+        static Tuple<bool, int> ExecuteInstance(double evaluationRate, ExecutionParameters parameters)
         {
             Generation firstGeneration = new Generation(parameters.populationSize, parameters.blueprintChromosome);
 
-            GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(firstGeneration, parameters);
+            GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(evaluationRate, firstGeneration, parameters);
 
             int nGenerations = 0;
             bool success = true;
