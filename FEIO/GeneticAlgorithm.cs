@@ -12,8 +12,8 @@ namespace FEIO
         public double MutationWeigth { get; }
         public double NonEvaluationWeigth { get; }
         public double EvaluationRate { get; private set; }
-        public Selection SelectionTechnique { get; }
-        public FitnessFunction FitnessFunctionTechnique { get; }
+        public Selection Selection { get; }
+        public FitnessFunction FitnessFunction { get; }
 
         public Generation CurrentGeneration { get; private set; }
 
@@ -24,7 +24,7 @@ namespace FEIO
         public GeneticAlgorithm(double evaluationRate, Generation firstGeneration, ExecutionParameters parameters) : 
             this(evaluationRate, firstGeneration, parameters.crossoverRate, parameters.mutationRate, parameters.selectionTechnique, parameters.fitnessFunction, parameters.elitismRate, parameters.mutationWeigth, parameters.nonEvaluationWeigth) { }
 
-        public GeneticAlgorithm(double evaluationRate, Generation firstGeneration, double crossoverRate, double mutationRate, Selection selectionTechnique, FitnessFunction fitnessFunctionTechnique, double elitismRate, double mutationWeigth, double nonEvaluationWeigth)
+        public GeneticAlgorithm(double evaluationRate, Generation firstGeneration, double crossoverRate, double mutationRate, Selection selection, FitnessFunction fitnessFunction, double elitismRate, double mutationWeigth, double nonEvaluationWeigth)
         {
             if (firstGeneration.Count % 2 != 0)
             {
@@ -37,15 +37,14 @@ namespace FEIO
             MutationWeigth = mutationWeigth;
             NonEvaluationWeigth = nonEvaluationWeigth;
             CurrentGeneration = firstGeneration;
-            SelectionTechnique = selectionTechnique;
-            FitnessFunctionTechnique = fitnessFunctionTechnique;
+            Selection = selection;
+            FitnessFunction = fitnessFunction;
 
             EvaluateEveryone();
         }
 
         public void RunEpoch()
         {
-
             List<Chromosome> newGeneration = new List<Chromosome>();
 
             newGeneration.AddRange(CurrentGeneration.OrderBy(x => x.Fitness).Take((int)(CurrentGeneration.Count * ElitismRate)));
@@ -54,7 +53,7 @@ namespace FEIO
             {
                 //Selection
 
-                Tuple<Chromosome, Chromosome> parents = SelectionTechnique.Select(CurrentGeneration);
+                Tuple<Chromosome, Chromosome> parents = Selection.Select(CurrentGeneration);
 
                 Tuple<Chromosome, Chromosome> children;
 
@@ -140,7 +139,7 @@ namespace FEIO
 
                 if(i < evaluations) //Chosen for evaluation
                 {
-                    c.Fitness = FitnessFunctionTechnique.Evaluate(c);
+                    c.Fitness = FitnessFunction.Evaluate(c);
                     c.Priority = 0;
                     c.FitnessOutdated = false;
                     totalEvaluations++;
@@ -165,7 +164,7 @@ namespace FEIO
         {
             foreach (Chromosome c in CurrentGeneration)
             {
-                c.Fitness = FitnessFunctionTechnique.Evaluate(c);
+                c.Fitness = FitnessFunction.Evaluate(c);
                 c.FitnessOutdated = false;
             }
         }
