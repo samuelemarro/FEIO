@@ -8,6 +8,9 @@ FEIO predicts which individuals are more likely to have an "unexpected" fitness 
 FEIO requires four parameters:
 
 -mutationWeight, corresponding to how much FEIO should take the mutations into account when calculating the priority;
+
 -nonEvaluationWeight, corresponding to how much FEIO should take approximated evaluations (instead of actual fitness evaluations) into account when calculating the priority;
+
 Priority is calculated as follows:
+
 -If an individual is no
