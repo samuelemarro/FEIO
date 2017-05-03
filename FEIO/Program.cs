@@ -99,7 +99,7 @@ namespace FEIO
             {
                 geneticAlgorithm.RunEpoch();
                 nGenerations++;
-                if (geneticAlgorithm.totalEvaluations > parameters.maxEvaluations)
+                if (geneticAlgorithm.totalEvaluations == parameters.maxEvaluations)
                 {
                     success = false;
                     break;

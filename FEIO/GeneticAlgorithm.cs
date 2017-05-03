@@ -4,39 +4,64 @@ using System.Linq;
 
 namespace FEIO
 {
+    /// <summary>
+    /// Represents an instance of a Genetic Algorithm
+    /// </summary>
     public class GeneticAlgorithm
     {
+        public double MaxEvaluations { get; }
+
+        public Generation CurrentGeneration { get; private set; }
+        /// <summary>
+        /// The crossover rate (0-1) of the GA.
+        /// </summary>
+        /// <example>If the crossover rate is 0.2, there's a 20% chance that two individuals will generate offsprings.</example>
         public double CrossoverRate { get; }
+
+        /// <summary>
+        /// The mutation rate (0-1) of the GA.
+        /// </summary>
+        /// <example>If the mutation rate is 0.2, there's a 20% chance that a child will be mutated.</example>
         public double MutationRate { get; }
+
+        /// <summary>
+        /// The elitism rate (0-1) of the GA.
+        /// </summary>
+        /// <example>If the elitim rate is 0.2, the top 20% individuals of each generation will be preserved for the following one.</example>
         public double ElitismRate { get; }
+
+        /// <summary>
+        /// How much the priority is increased if an individual is mutated.
+        /// </summary>
         public double MutationWeigth { get; }
+
+
         public double NonEvaluationWeigth { get; }
         public double EvaluationRate { get; private set; }
         public Selection Selection { get; }
         public FitnessFunction FitnessFunction { get; }
-
-        public Generation CurrentGeneration { get; private set; }
-
+        
         public int totalEvaluations;
         
         private static Random random = new Random();
 
         public GeneticAlgorithm(double evaluationRate, Generation firstGeneration, ExecutionParameters parameters) : 
-            this(evaluationRate, firstGeneration, parameters.crossoverRate, parameters.mutationRate, parameters.selectionTechnique, parameters.fitnessFunction, parameters.elitismRate, parameters.mutationWeigth, parameters.nonEvaluationWeigth) { }
+            this(evaluationRate, firstGeneration, parameters.maxEvaluations, parameters.crossoverRate, parameters.mutationRate, parameters.selectionTechnique, parameters.fitnessFunction, parameters.elitismRate, parameters.mutationWeigth, parameters.nonEvaluationWeigth) { }
 
-        public GeneticAlgorithm(double evaluationRate, Generation firstGeneration, double crossoverRate, double mutationRate, Selection selection, FitnessFunction fitnessFunction, double elitismRate, double mutationWeigth, double nonEvaluationWeigth)
+        public GeneticAlgorithm(double evaluationRate, Generation firstGeneration, double maxEvaluations, double crossoverRate, double mutationRate, Selection selection, FitnessFunction fitnessFunction, double elitismRate, double mutationWeigth, double nonEvaluationWeigth)
         {
             if (firstGeneration.Count % 2 != 0)
             {
                 throw new ArgumentException("The first generation must have an even size", "firstGeneration");
             }
             EvaluationRate = evaluationRate;
+            CurrentGeneration = firstGeneration;
+            MaxEvaluations = maxEvaluations;
             CrossoverRate = crossoverRate;
             MutationRate = mutationRate;
             ElitismRate = elitismRate;
             MutationWeigth = mutationWeigth;
             NonEvaluationWeigth = nonEvaluationWeigth;
-            CurrentGeneration = firstGeneration;
             Selection = selection;
             FitnessFunction = fitnessFunction;
 
@@ -147,6 +172,11 @@ namespace FEIO
                 else
                 {
                     c.Priority += NonEvaluationWeigth;
+                }
+                //If the maximum number is reached while evaluating the population, the process is interrupted.
+                if(totalEvaluations == MaxEvaluations)
+                {
+                    break;
                 }
             }
 
