@@ -9,9 +9,6 @@ namespace FEIO
     /// </summary>
     public class GeneticAlgorithm
     {
-        /// <summary>
-        /// The maximum number of evaluations that the GA can execute.
-        /// </summary>
         public double MaxEvaluations { get; }
 
         public Generation CurrentGeneration { get; private set; }
@@ -38,27 +35,18 @@ namespace FEIO
         /// </summary>
         public double MutationWeigth { get; }
 
-        /// <summary>
-        /// How much the priority is increased if an individual is not evaluated.
-        /// </summary>
-        public double NonEvaluationWeigth { get; }
 
-        /// <summary>
-        /// The rate of evaluation.
-        /// </summary>
-        /// <example>If the evaluation rate is 0.2, only 20% of the individuals will be
-        /// actually evaluated, while the fitness of the others will be approximated.</example>
+        public double NonEvaluationWeigth { get; }
         public double EvaluationRate { get; private set; }
         public Selection Selection { get; }
         public FitnessFunction FitnessFunction { get; }
-
+        
         public int totalEvaluations;
-
+        
         private static Random random = new Random();
 
-        public GeneticAlgorithm(double evaluationRate, Generation firstGeneration, ExecutionParameters parameters) :
-            this(evaluationRate, firstGeneration, parameters.maxEvaluations, parameters.crossoverRate, parameters.mutationRate, parameters.selectionTechnique, parameters.fitnessFunction, parameters.elitismRate, parameters.mutationWeigth, parameters.nonEvaluationWeigth)
-        { }
+        public GeneticAlgorithm(double evaluationRate, Generation firstGeneration, ExecutionParameters parameters) : 
+            this(evaluationRate, firstGeneration, parameters.maxEvaluations, parameters.crossoverRate, parameters.mutationRate, parameters.selectionTechnique, parameters.fitnessFunction, parameters.elitismRate, parameters.mutationWeigth, parameters.nonEvaluationWeigth) { }
 
         public GeneticAlgorithm(double evaluationRate, Generation firstGeneration, double maxEvaluations, double crossoverRate, double mutationRate, Selection selection, FitnessFunction fitnessFunction, double elitismRate, double mutationWeigth, double nonEvaluationWeigth)
         {
@@ -147,11 +135,11 @@ namespace FEIO
                     children.Item2.FitnessOutdated = true;
                     children.Item2.Priority += MutationWeigth;
                 }
-
+                
                 newGeneration.Add(children.Item1);
 
                 //Sometimes only one child can be added
-                if (newGeneration.Count == CurrentGeneration.Count)
+                if(newGeneration.Count == CurrentGeneration.Count)
                 {
                     newGeneration.Add(children.Item2);
                 }
@@ -166,15 +154,15 @@ namespace FEIO
 
             if (chromosomes.Count == 0)
                 return;
-
+            
             int evaluations = (int)((double)chromosomes.Count * EvaluationRate);
             List<Chromosome> orderedChromosomes = chromosomes.OrderByDescending(x => x.Priority).ToList();
-
-            for (int i = 0; i < orderedChromosomes.Count; i++)
+            
+            for(int i = 0; i < orderedChromosomes.Count; i++)
             {
                 Chromosome c = orderedChromosomes[i];
 
-                if (i < evaluations) //Chosen for evaluation
+                if(i < evaluations) //Chosen for evaluation
                 {
                     c.Fitness = FitnessFunction.Evaluate(c);
                     c.Priority = 0;
@@ -186,7 +174,7 @@ namespace FEIO
                     c.Priority += NonEvaluationWeigth;
                 }
                 //If the maximum number is reached while evaluating the population, the process is interrupted.
-                if (totalEvaluations == MaxEvaluations)
+                if(totalEvaluations == MaxEvaluations)
                 {
                     break;
                 }
