@@ -10,7 +10,7 @@ FEIO requires four parameters:
 
 * nonEvaluationWeight: how much FEIO should take approximated evaluations (instead of actual fitness evaluations) into account when calculating the priority;
 
-* evaluationRate: the percentage 
+* evaluationRate: the rate of evaluated individuals in an epoch.
 
 * evaluationRateGrowth: how fast the evaluation rate should grow.
 
